@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+configure =
+ifneq (,$(findstring coverage,$(DEB_BUILD_OPTIONS)))
+configure += --enable-coverage
+endif
+
+%:
+	dh $@ --with=autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		$(configure) \
+		--disable-Werror \
+		--enable-gtk-doc \
+		--disable-python \
+		--disable-silent-rules \
+		$(NULL)
+
+override_dh_install:
+	dh_install --list-missing
+
+override_dh_strip:
+	dh_strip --dbg-package=libtelepathy-farstream3-dbg
+
+override_dh_shlibdeps:
+	dh_shlibdeps
+	dh_girepository
+
+# commands not to run
+override_dh_auto_test:
+	:
